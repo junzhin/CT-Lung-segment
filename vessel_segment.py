@@ -71,81 +71,44 @@ def vesseg(image, label):
     return vessel
 
 
-def process_image(input_image_path, output_directory):
-    start = time.time()
-
-    lung = sitk.ReadImage(input_image_path)
-    spacing = lung.GetSpacing()
-    direction = lung.GetDirection()
-    origin = lung.GetOrigin()
-    print('spacing:', spacing)
-    print('direction:', direction)
-    print('origin:', origin)
-
-    array = sitk.GetArrayFromImage(lung).astype(int16)
-    new_lung = sitk.GetImageFromArray(array)
-
-    new_lung.SetSpacing(spacing)
-    new_lung.SetDirection(direction)
-    new_lung.SetOrigin(origin)
-
-    # Assuming lungmask is a function to generate the mask
-    lung_mask = lungmask(new_lung)
-    print(lung_mask.GetOrigin())
-
-    file_name = os.path.basename(input_image_path)
-    output_path = os.path.join(
-        output_directory, file_name.replace(".nii.gz", "_lung_mask.nii.gz"))
-    sitk.WriteImage(lung_mask, output_path)
-
-    end = time.time()
-    print(
-        f'Processing {input_image_path} finished, time: {end - start} seconds')
 
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
+    start_total = time.time()
+
     input_directory = '/data2/LSAM/img'
-    output_directory = '/data2/LSAM/lung_mask'
+    output_directory = '/data2/LSAM/pseudo/artery/CTLS'
 
-    input_images = [os.path.join(input_directory, f) for f in os.listdir(
-        input_directory) if f.endswith('.nii.gz')]
+    # Get all file paths in the input directory
+    input_files = glob.glob(os.path.join(input_directory,'img', '*.nii.gz'))
 
-    for input_image in input_images:
-        process_image(input_image, output_directory)
+    for file in input_files:
+        start = time.time()
+        print('file: ', file)
 
+        # Load the input image
+        lung = nib.load(file)
+        affine = lung.affine
+        lung_img = lung.get_fdata() 
+        mask_file = file.replace(".nii.gz", "_lung_mask.nii.gz")
+        mask_file = mask_file.replace("img", "lung_mask")
+        print('mask_file: ', mask_file)
+        lung_mask = nib.load(mask_file).get_fdata()
 
+        # Perform vessel segmentation
+        vessel = vesseg(lung_img, lung_mask)
 
-# if __name__ == '__main__':
-#     start_total = time.time()
+        # Save the processed image to the output directory
+        output_filename = os.path.join(output_directory, os.path.basename(
+            file).replace('.nii.gz', '_vessel_mask.nii.gz'))
+        nib.Nifti1Image(vessel, affine).to_filename(output_filename)
 
-#     input_directory = '/data2/LSAM/img'
-#     output_directory = '/data2/LSAM/pseudo/artery/CTLS'
+        end = time.time()
+        print(f'Processed {file}. Time taken: {end - start} seconds')
 
-#     # Get all file paths in the input directory
-#     input_files = glob.glob(os.path.join(input_directory, '*.nii.gz'))
-
-#     for file in input_files:
-#         start = time.time()
-#         print('file: ', file)
-
-#         # Load the input image
-#         lung = nib.load(file)
-#         affine = lung.affine
-#         lung_img = lung.get_fdata() 
-
-#         # Perform vessel segmentation
-#         vessel = vesseg(lung_img, lung_mask)
-
-#         # Save the processed image to the output directory
-#         output_filename = os.path.join(output_directory, os.path.basename(
-#             file).replace('.nii.gz', '_vessel_mask.nii.gz'))
-#         nib.Nifti1Image(vessel, affine).to_filename(output_filename)
-
-#         end = time.time()
-#         print(f'Processed {file}. Time taken: {end - start} seconds')
-
-#     end_total = time.time()
-#     print(
-#         f'All images processed. Total time: {end_total - start_total} seconds')
+    end_total = time.time()
+    print(
+        f'All images processed. Total time: {end_total - start_total} seconds')
 
 
