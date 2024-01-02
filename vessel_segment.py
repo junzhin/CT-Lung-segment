@@ -1,5 +1,5 @@
 import os, glob, time
-from numpy as np  np.int16, spacing
+from numpy as np 
 import nibabel as nib
 import cv2
 from skimage.filters import frangi
