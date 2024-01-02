@@ -1,8 +1,10 @@
 import os, glob, time
-import numpy as np
+import numpy as np, int16, spacing
 import nibabel as nib
 import cv2
 from skimage.filters import frangi
+from lung_segment import lungmask
+import SimpleITK as sitk
 
 def window_transform(img, win_min, win_max):
     for i in range(img.shape[0]):
@@ -85,14 +87,27 @@ if __name__ == '__main__':
         lung = nib.load(file)
         affine = lung.affine
         lung_img = lung.get_fdata()
-
-        # Assuming the label file has a corresponding name in the label directory
-        label_file = os.path.join(
-            '/path_to_label_directory', os.path.basename(file).replace('.nii.gz', '_lung_mask.nii.gz'))
-        label_img = nib.load(label_file).get_fdata()
+        
+        
+        lung_for_mask = sitk.ReadImage("DATA3/Series0204_Med.nii.gz") # 输入图像
+        spacing = lung_for_mask.GetSpacing()
+        direction = lung_for_mask.GetDirection()
+        oringin = lung_for_mask.GetOrigin()
+        print('spacing:',spacing)
+        print('direction:',direction)
+        print('oringin:',oringin)
+        
+        array = sitk.GetArrayFromImage(lung_for_mask).astype(int16)
+        new_lung = sitk.GetImageFromArray(array)
+        
+        new_lung.SetSpacing(spacing)
+        new_lung.SetDirection(direction)
+        new_lung.SetOrigin(oringin)
+        
+        lung_mask = lungmask(new_lung)
 
         # Perform vessel segmentation
-        vessel = vesseg(lung_img, label_img)
+        vessel = vesseg(lung_img, lung_mask)
 
         # Save the processed image to the output directory
         output_filename = os.path.join(output_directory, os.path.basename(
@@ -105,3 +120,5 @@ if __name__ == '__main__':
     end_total = time.time()
     print(
         f'All images processed. Total time: {end_total - start_total} seconds')
+
+
