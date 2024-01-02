@@ -82,13 +82,14 @@ if __name__ == '__main__':
 
     for file in input_files:
         start = time.time()
+        print('file: ', file)
 
         # Load the input image
         lung = nib.load(file)
         affine = lung.affine
-        lung_img = lung.get_fdata()
-        
-        lung_for_mask = sitk.ReadImage(input_directory)  # 输入图像
+        lung_img = lung.get_fdata() 
+
+        lung_for_mask = sitk.ReadImage(file)  # 输入图像
         spacing = lung_for_mask.GetSpacing()
         direction = lung_for_mask.GetDirection()
         oringin = lung_for_mask.GetOrigin()
