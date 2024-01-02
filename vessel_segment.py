@@ -1,5 +1,5 @@
 import os, glob, time
-from numpy as np 
+import  numpy as np 
 import nibabel as nib
 import cv2
 from skimage.filters import frangi
