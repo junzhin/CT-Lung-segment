@@ -68,15 +68,40 @@ def vesseg(image, label):
     vessel[vessel <= 0] = 0
     return vessel
 
+
 if __name__ == '__main__':
-    start = time.time()
+    start_total = time.time()
 
-    lung = nib.load('DATA3/Series0204_Med.nii.gz') #输入图像
-    affine = lung.affine
-    lung_img = lung.get_fdata()
-    label_img = nib.load('vessel_segment_result/DATA3/Series0204_Med_lung_mask.nii.gz').get_fdata() # 输入肺标签
-    vessel = vesseg(lung_img, label_img)
-    nib.Nifti1Image(vessel, affine).to_filename('vessel_segment_result/DATA3/Series0204_Med_vessel_mask.nii.gz')
+    input_directory = '/data2/LSAM/img'
+    output_directory = '/data2/LSAM/pseudo/artery/CTLS'
 
-    end = time.time()
-    print('process end','time:'+str(end-start))
+    # Get all file paths in the input directory
+    input_files = glob.glob(os.path.join(input_directory, '*.nii.gz'))
+
+    for file in input_files:
+        start = time.time()
+
+        # Load the input image
+        lung = nib.load(file)
+        affine = lung.affine
+        lung_img = lung.get_fdata()
+
+        # Assuming the label file has a corresponding name in the label directory
+        label_file = os.path.join(
+            '/path_to_label_directory', os.path.basename(file).replace('.nii.gz', '_lung_mask.nii.gz'))
+        label_img = nib.load(label_file).get_fdata()
+
+        # Perform vessel segmentation
+        vessel = vesseg(lung_img, label_img)
+
+        # Save the processed image to the output directory
+        output_filename = os.path.join(output_directory, os.path.basename(
+            file).replace('.nii.gz', '_vessel_mask.nii.gz'))
+        nib.Nifti1Image(vessel, affine).to_filename(output_filename)
+
+        end = time.time()
+        print(f'Processed {file}. Time taken: {end - start} seconds')
+
+    end_total = time.time()
+    print(
+        f'All images processed. Total time: {end_total - start_total} seconds')
