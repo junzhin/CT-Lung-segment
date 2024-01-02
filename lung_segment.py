@@ -75,6 +75,16 @@ def lungmask(vol):
 def process_image(input_image_path, output_directory):
     start = time.time()
 
+    # Extract file name
+    file_name = os.path.basename(input_image_path)
+    output_path = os.path.join(
+        output_directory, file_name.replace(".nii.gz", "_lung_mask.nii.gz"))
+
+    # Check if the output file already exists, if so, skip processing
+    if os.path.exists(output_path):
+        print(f"Output file {output_path} already exists. Skipping processing for {input_image_path}")
+        return
+
     lung = sitk.ReadImage(input_image_path)
     spacing = lung.GetSpacing()
     direction = lung.GetDirection()
@@ -83,7 +93,7 @@ def process_image(input_image_path, output_directory):
     print('direction:', direction)
     print('origin:', origin)
 
-    array = sitk.GetArrayFromImage(lung).astype(int16)
+    array = sitk.GetArrayFromImage(lung).astype(np.int16)
     new_lung = sitk.GetImageFromArray(array)
 
     new_lung.SetSpacing(spacing)
@@ -91,17 +101,14 @@ def process_image(input_image_path, output_directory):
     new_lung.SetOrigin(origin)
 
     # Assuming lungmask is a function to generate the mask
-    lung_mask = lungmask(new_lung)
+    lung_mask = lungmask(new_lung)  # Assuming lungmask function is defined elsewhere
     print(lung_mask.GetOrigin())
 
-    file_name = os.path.basename(input_image_path)
-    output_path = os.path.join(
-        output_directory, file_name.replace(".nii.gz", "_lung_mask.nii.gz"))
+    # Write the lung mask to the output path
     sitk.WriteImage(lung_mask, output_path)
 
     end = time.time()
-    print(
-        f'Processing {input_image_path} finished, time: {end - start} seconds')
+    print(f'Processing {input_image_path} finished, time: {end - start} seconds')
 
 
 if __name__ == "__main__":
