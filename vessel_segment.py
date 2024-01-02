@@ -71,55 +71,81 @@ def vesseg(image, label):
     return vessel
 
 
-if __name__ == '__main__':
-    start_total = time.time()
+def process_image(input_image_path, output_directory):
+    start = time.time()
 
-    input_directory = '/data2/LSAM/img'
-    output_directory = '/data2/LSAM/pseudo/artery/CTLS'
+    lung = sitk.ReadImage(input_image_path)
+    spacing = lung.GetSpacing()
+    direction = lung.GetDirection()
+    origin = lung.GetOrigin()
+    print('spacing:', spacing)
+    print('direction:', direction)
+    print('origin:', origin)
 
-    # Get all file paths in the input directory
-    input_files = glob.glob(os.path.join(input_directory, '*.nii.gz'))
+    array = sitk.GetArrayFromImage(lung).astype(int16)
+    new_lung = sitk.GetImageFromArray(array)
 
-    for file in input_files:
-        start = time.time()
-        print('file: ', file)
+    new_lung.SetSpacing(spacing)
+    new_lung.SetDirection(direction)
+    new_lung.SetOrigin(origin)
 
-        # Load the input image
-        lung = nib.load(file)
-        affine = lung.affine
-        lung_img = lung.get_fdata() 
+    # Assuming lungmask is a function to generate the mask
+    lung_mask = lungmask(new_lung)
+    print(lung_mask.GetOrigin())
 
-        lung_for_mask = sitk.ReadImage(file)  # 输入图像
-        spacing = lung_for_mask.GetSpacing()
-        direction = lung_for_mask.GetDirection()
-        oringin = lung_for_mask.GetOrigin()
-        print('spacing:',spacing)
-        print('direction:',direction)
-        print('oringin:',oringin)
-        
-        array = sitk.GetArrayFromImage(lung_for_mask).astype(np.int16)
-        new_lung = sitk.GetImageFromArray(array)
-        
-        new_lung.SetSpacing(spacing)
-        new_lung.SetDirection(direction)
-        new_lung.SetOrigin(oringin)
-        
-        lung_mask = lungmask(new_lung)
-        lung_mask = np.array(lung_mask)
+    file_name = os.path.basename(input_image_path)
+    output_path = os.path.join(
+        output_directory, file_name.replace(".nii.gz", "_lung_mask.nii.gz"))
+    sitk.WriteImage(lung_mask, output_path)
 
-        # Perform vessel segmentation
-        vessel = vesseg(lung_img, lung_mask)
-
-        # Save the processed image to the output directory
-        output_filename = os.path.join(output_directory, os.path.basename(
-            file).replace('.nii.gz', '_vessel_mask.nii.gz'))
-        nib.Nifti1Image(vessel, affine).to_filename(output_filename)
-
-        end = time.time()
-        print(f'Processed {file}. Time taken: {end - start} seconds')
-
-    end_total = time.time()
+    end = time.time()
     print(
-        f'All images processed. Total time: {end_total - start_total} seconds')
+        f'Processing {input_image_path} finished, time: {end - start} seconds')
+
+
+if __name__ == "__main__":
+    input_directory = '/data2/LSAM/img'
+    output_directory = '/data2/LSAM/lung_mask'
+
+    input_images = [os.path.join(input_directory, f) for f in os.listdir(
+        input_directory) if f.endswith('.nii.gz')]
+
+    for input_image in input_images:
+        process_image(input_image, output_directory)
+
+
+
+# if __name__ == '__main__':
+#     start_total = time.time()
+
+#     input_directory = '/data2/LSAM/img'
+#     output_directory = '/data2/LSAM/pseudo/artery/CTLS'
+
+#     # Get all file paths in the input directory
+#     input_files = glob.glob(os.path.join(input_directory, '*.nii.gz'))
+
+#     for file in input_files:
+#         start = time.time()
+#         print('file: ', file)
+
+#         # Load the input image
+#         lung = nib.load(file)
+#         affine = lung.affine
+#         lung_img = lung.get_fdata() 
+
+#         # Perform vessel segmentation
+#         vessel = vesseg(lung_img, lung_mask)
+
+#         # Save the processed image to the output directory
+#         output_filename = os.path.join(output_directory, os.path.basename(
+#             file).replace('.nii.gz', '_vessel_mask.nii.gz'))
+#         nib.Nifti1Image(vessel, affine).to_filename(output_filename)
+
+#         end = time.time()
+#         print(f'Processed {file}. Time taken: {end - start} seconds')
+
+#     end_total = time.time()
+#     print(
+#         f'All images processed. Total time: {end_total - start_total} seconds')
 
 
