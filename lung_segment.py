@@ -3,6 +3,7 @@ from numpy import int16, spacing
 from skimage import measure
 import time
 import numpy as np
+import os 
 
 
 
