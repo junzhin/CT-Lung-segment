@@ -1,5 +1,5 @@
 import os, glob, time
-import numpy as np, int16, spacing
+from numpy as np  np.int16, spacing
 import nibabel as nib
 import cv2
 from skimage.filters import frangi
@@ -97,7 +97,7 @@ if __name__ == '__main__':
         print('direction:',direction)
         print('oringin:',oringin)
         
-        array = sitk.GetArrayFromImage(lung_for_mask).astype(int16)
+        array = sitk.GetArrayFromImage(lung_for_mask).astype(np.int16)
         new_lung = sitk.GetImageFromArray(array)
         
         new_lung.SetSpacing(spacing)
