@@ -105,6 +105,7 @@ if __name__ == '__main__':
         new_lung.SetOrigin(oringin)
         
         lung_mask = lungmask(new_lung)
+        lung_mask = np.array(lung_mask)
 
         # Perform vessel segmentation
         vessel = vesseg(lung_img, lung_mask)
