@@ -70,28 +70,71 @@ def lungmask(vol):
     l.SetDirection(direction)
     return l
 
-if __name__ == "__main__":
 
+def process_image(input_image_path, output_directory):
     start = time.time()
-    
-    lung = sitk.ReadImage("DATA3/Series0204_Med.nii.gz") # 输入图像
+
+    lung = sitk.ReadImage(input_image_path)
     spacing = lung.GetSpacing()
     direction = lung.GetDirection()
-    oringin = lung.GetOrigin()
-    print('spacing:',spacing)
-    print('direction:',direction)
-    print('oringin:',oringin)
-    
+    origin = lung.GetOrigin()
+    print('spacing:', spacing)
+    print('direction:', direction)
+    print('origin:', origin)
+
     array = sitk.GetArrayFromImage(lung).astype(int16)
     new_lung = sitk.GetImageFromArray(array)
-    
+
     new_lung.SetSpacing(spacing)
     new_lung.SetDirection(direction)
-    new_lung.SetOrigin(oringin)
-    
+    new_lung.SetOrigin(origin)
+
+    # Assuming lungmask is a function to generate the mask
     lung_mask = lungmask(new_lung)
     print(lung_mask.GetOrigin())
-    sitk.WriteImage(lung_mask,"vessel_segment_result/DATA3/Series0204_Med_lung_mask.nii.gz") # 保存图像
+
+    file_name = os.path.basename(input_image_path)
+    output_path = os.path.join(
+        output_directory, file_name.replace(".nii.gz", "_lung_mask.nii.gz"))
+    sitk.WriteImage(lung_mask, output_path)
 
     end = time.time()
-    print('process end','time:'+str(end-start))
+    print(
+        f'Processing {input_image_path} finished, time: {end - start} seconds')
+
+
+if __name__ == "__main__":
+    input_directory = '/data2/LSAM/img'
+    output_directory = '/data2/LSAM/lung_mask'
+
+    input_images = [os.path.join(input_directory, f) for f in os.listdir(
+        input_directory) if f.endswith('.nii.gz')]
+
+    for input_image in input_images:
+        process_image(input_image, output_directory)
+
+# if __name__ == "__main__":
+
+#     start = time.time()
+    
+#     lung = sitk.ReadImage("DATA3/Series0204_Med.nii.gz") # 输入图像
+#     spacing = lung.GetSpacing()
+#     direction = lung.GetDirection()
+#     oringin = lung.GetOrigin()
+#     print('spacing:',spacing)
+#     print('direction:',direction)
+#     print('oringin:',oringin)
+    
+#     array = sitk.GetArrayFromImage(lung).astype(int16)
+#     new_lung = sitk.GetImageFromArray(array)
+    
+#     new_lung.SetSpacing(spacing)
+#     new_lung.SetDirection(direction)
+#     new_lung.SetOrigin(oringin)
+    
+#     lung_mask = lungmask(new_lung)
+#     print(lung_mask.GetOrigin())
+#     sitk.WriteImage(lung_mask,"vessel_segment_result/DATA3/Series0204_Med_lung_mask.nii.gz") # 保存图像
+
+#     end = time.time()
+#     print('process end','time:'+str(end-start))
