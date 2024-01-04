@@ -77,12 +77,11 @@ def vesseg(image, label):
 if __name__ == '__main__':
     start_total = time.time()
 
-    input_directory = '/data2/LSAM/img'
+    input_directory = '/data2/LSAM/' 
     output_directory = '/data2/LSAM/pseudo/artery/CTLS'
 
     # Get all file paths in the input directory
-    input_files = glob.glob(os.path.join(input_directory,'img', '*.nii.gz'))
-
+    input_files = glob.glob(os.path.join(input_directory,'img', '*.nii.gz')) 
     for file in input_files:
         start = time.time()
         print('file: ', file)
