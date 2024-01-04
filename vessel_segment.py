@@ -94,7 +94,8 @@ if __name__ == '__main__':
         mask_file = mask_file.replace("img", "lung_mask")
         print('mask_file: ', mask_file)
         lung_mask = nib.load(mask_file).get_fdata()
-
+        print("lung_mask",lung_mask.shape)
+        print("lung_img",lung_img.shape)
         # Perform vessel segmentation
         vessel = vesseg(lung_img, lung_mask)
 
