@@ -5,6 +5,7 @@ import cv2
 from skimage.filters import frangi
 from lung_segment import lungmask
 import SimpleITK as sitk
+from scipy import ndimage 
 
 def window_transform(img, win_min, win_max):
     for i in range(img.shape[0]):
