@@ -30,7 +30,10 @@ def sigmoid(img, alpha, beta):
 def vesseg(image, label):
     # 窗宽调整
     print('image',image.dtype)
-    print('label',label.dtype)      
+    print('label',label.dtype)   
+
+    image = image.astype(np.uint8)
+    label = label.astype(np.uint8)   
     wintrans = window_transform(image, -1350.0, 650.0)
     # nib.Nifti1Image(wintrans, affine).to_filename(save_path+'wintrans.nii.gz')
 
