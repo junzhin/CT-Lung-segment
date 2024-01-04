@@ -113,8 +113,8 @@ if __name__ == '__main__':
         output_filename = os.path.join(output_directory, os.path.basename(
             file).replace('.nii.gz', '_vessel_mask.nii.gz'))
         print("output_filename", output_filename)
-        nib.Nifti1Image(vessel, affine).to_filename(output_filename)
-
+        # nib.Nifti1Image(vessel, affine).to_filename(output_filename)
+        nib.save(vessel, output_filename)
         end = time.time()
         print(f'Processed {file}. Time taken: {end - start} seconds')
 
