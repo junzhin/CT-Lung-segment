@@ -28,16 +28,19 @@ def sigmoid(img, alpha, beta):
     img_min = img.min()
     return (img_max - img_min) / (1 + np.exp((beta - img) / alpha)) + img_min
 
-
 def vesseg(image, label):
     # 窗宽调整
     wintrans = window_transform(image, -1350.0, 650.0)
     # nib.Nifti1Image(wintrans, affine).to_filename(save_path+'wintrans.nii.gz')
 
     # 获取ROI
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
-    print(kernel.shape)
-    label = cv2.erode(label, kernel)
+    # Create a 3D structuring element manually
+    ksize = (5, 5, 5)
+    kernel = np.zeros(ksize, dtype=np.uint8)
+    for i in range(ksize[2]):
+        kernel[:, :, i] = ndimage.generate_binary_structure(3, 1)
+
+    label = ndimage.binary_erosion(label, structure=kernel).astype(label.dtype)
     roi = wintrans * label
     # nib.Nifti1Image(roi, affine).to_filename(save_path+'roi.nii.gz')
 
@@ -49,6 +52,28 @@ def vesseg(image, label):
     roi_frangi = frangi(roi_sigmoid, sigmas=range(1, 5, 1),
                                 alpha=0.5, beta=0.5, gamma=50, 
                                 black_ridges=False, mode='constant', cval=0)
+
+
+# def vesseg(image, label):
+#     # 窗宽调整
+#     wintrans = window_transform(image, -1350.0, 650.0)
+#     # nib.Nifti1Image(wintrans, affine).to_filename(save_path+'wintrans.nii.gz')
+
+#     # 获取ROI
+#     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
+#     print(kernel.shape)
+#     label = cv2.erode(label, kernel)
+#     roi = wintrans * label
+#     # nib.Nifti1Image(roi, affine).to_filename(save_path+'roi.nii.gz')
+
+#     # 非线性映射
+#     roi_sigmoid = sigmoid(roi, 20, 95)
+#     # nib.Nifti1Image(roi_sigmoid, affine).to_filename(save_path+'sigmoid.nii.gz')
+
+#     # 第四步：血管增强
+#     roi_frangi = frangi(roi_sigmoid, sigmas=range(1, 5, 1),
+#                                 alpha=0.5, beta=0.5, gamma=50, 
+#                                 black_ridges=False, mode='constant', cval=0)
     '''
     para image: 输入图像。
     para sigmas: 滤波器尺度，即 np.arange(scale_range[0], scale_range[1], scale_step)。
