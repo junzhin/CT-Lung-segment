@@ -30,13 +30,25 @@ def sigmoid(img, alpha, beta):
     return (img_max - img_min) / (1 + np.exp((beta - img) / alpha)) + img_min
 
 def vesseg(image, label):
+    '''
+    para image: 输入图像。
+    para sigmas: 滤波器尺度，即 np.arange(scale_range[0], scale_range[1], scale_step)。
+    para scale_range：使用后的sigma范围。
+    para scale_step：sigma的步长。
+    para alptha：Frangi校正常数，用于调整过滤器对于板状结构偏差的敏感度。
+    para beta：Frangi校正常数，用于调整过滤器对于斑状结构偏差的敏感度。
+    para gamma：Frangi校正常数，用于调整过滤器对高方差/纹理/结构区域的敏感度。
+    para black_ridges：当为Ture时，过滤去检测黑色脊线；当为False时，检测白色脊线。
+    para mode：可选'constant'、'reflect'、'wrap'、'nearest'、'mirror'五种模式，处理图像边界外的值。
+    para cval：与mode的'constant'（图像边界之外的值）结合使用。
+    '''
     # 窗宽调整
     wintrans = window_transform(image, -1350.0, 650.0)
     # nib.Nifti1Image(wintrans, affine).to_filename(save_path+'wintrans.nii.gz')
 
     # 获取ROI
     # Create a 3D structuring element manually
-    ksize = (5, 5, 5)
+    ksize = (3, 3, 3)  # Adjust the size to match the structuring element
     kernel = np.zeros(ksize, dtype=np.uint8)
     for i in range(ksize[2]):
         kernel[:, :, i] = ndimage.generate_binary_structure(3, 1)
@@ -75,18 +87,7 @@ def vesseg(image, label):
 #     roi_frangi = frangi(roi_sigmoid, sigmas=range(1, 5, 1),
 #                                 alpha=0.5, beta=0.5, gamma=50, 
 #                                 black_ridges=False, mode='constant', cval=0)
-    '''
-    para image: 输入图像。
-    para sigmas: 滤波器尺度，即 np.arange(scale_range[0], scale_range[1], scale_step)。
-    para scale_range：使用后的sigma范围。
-    para scale_step：sigma的步长。
-    para alptha：Frangi校正常数，用于调整过滤器对于板状结构偏差的敏感度。
-    para beta：Frangi校正常数，用于调整过滤器对于斑状结构偏差的敏感度。
-    para gamma：Frangi校正常数，用于调整过滤器对高方差/纹理/结构区域的敏感度。
-    para black_ridges：当为Ture时，过滤去检测黑色脊线；当为False时，检测白色脊线。
-    para mode：可选'constant'、'reflect'、'wrap'、'nearest'、'mirror'五种模式，处理图像边界外的值。
-    para cval：与mode的'constant'（图像边界之外的值）结合使用。
-    '''
+
     # nib.Nifti1Image(roi_frangi, affine).to_filename(save_path+'frangi.nii.gz')
 
     # 第五步：自适应阈值分割
