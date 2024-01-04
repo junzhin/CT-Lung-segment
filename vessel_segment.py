@@ -106,7 +106,8 @@ if __name__ == '__main__':
         print("lung_mask",lung_mask.shape)
         print("lung_img",lung_img.shape)
         # Perform vessel segmentation
-        vessel = vesseg(lung_img, lung_mask)
+        # vessel = vesseg(lung_img, lung_mask)
+        vessel = lung_img
 
         # Save the processed image to the output directory
         output_filename = os.path.join(output_directory, os.path.basename(
