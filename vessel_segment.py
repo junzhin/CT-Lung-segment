@@ -87,7 +87,7 @@ if __name__ == '__main__':
     start_total = time.time()
 
     input_directory = '/data2/LSAM/' 
-    output_directory = '/data2/LSAM/pseudo/'
+    output_directory = '/data2/LSAM/vessel/'
 
     # Get all file paths in the input directory
     input_files = glob.glob(os.path.join(input_directory,'img', '*.nii.gz')) 
