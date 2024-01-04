@@ -35,7 +35,7 @@ def vesseg(image, label):
     # nib.Nifti1Image(wintrans, affine).to_filename(save_path+'wintrans.nii.gz')
 
     # 获取ROI
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5,5))
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
     print(kernel.shape)
     label = cv2.erode(label, kernel)
     roi = wintrans * label
