@@ -3,6 +3,7 @@ import numpy as np
 import nibabel as nib
 import cv2
 from skimage.filters import frangi
+from scipy import ndimage
 
 def window_transform(img, win_min, win_max):
     for i in range(img.shape[0]):
@@ -30,17 +31,22 @@ def sigmoid(img, alpha, beta):
 def vesseg(image, label):
     # 窗宽调整
    
+   
 
-    image = image.astype(np.uint8)
-    label = label.astype(np.uint8)
-    print('image',image.dtype)
-    print('label',label.dtype)  
+
+    # image = image.astype(np.uint8)
+    # label = label.astype(np.uint8)
+    # print('image',image.dtype)
+    # print('label',label.dtype)  
     wintrans = window_transform(image, -1350.0, 650.0)
     # nib.Nifti1Image(wintrans, affine).to_filename(save_path+'wintrans.nii.gz')
 
     # 获取ROI
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
-    label = cv2.erode(label, kernel)
+    # kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
+    # label = cv2.erode(label, kernel)
+    kernel = np.ones((5,5,5), dtype=np.uint8)
+    
+    label = ndimage.binary_erosion(label, kernel)
     roi = wintrans * label
     # nib.Nifti1Image(roi, affine).to_filename(save_path+'roi.nii.gz')
 
