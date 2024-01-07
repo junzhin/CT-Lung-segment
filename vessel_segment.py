@@ -98,7 +98,7 @@ if __name__ == '__main__':
         lung = nib.load(file)
         affine = lung.affine
         lung_img = lung.get_fdata() 
-        mask_file = file.replace(".nii.gz", "_lung_mask.nii.gz")
+        mask_file = file.replace("_0000.nii.gz", "_lung_mask.nii.gz")
         mask_file = mask_file.replace("img", "lung_mask")
         print('mask_file: ', mask_file)
         lung_mask = nib.load(mask_file).get_fdata()
