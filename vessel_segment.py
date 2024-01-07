@@ -96,19 +96,24 @@ if __name__ == '__main__':
 
         # Load the input image
         lung = nib.load(file)
+        print("Loading the lung.....")
         affine = lung.affine
         lung_img = lung.get_fdata() 
+        print("Loading the lung: get_fdata.....")
+
         mask_file = file.replace("_0000.nii.gz", "_lung_mask.nii.gz")
         mask_file = mask_file.replace("img", "lung_mask")
         print('mask_file: ', mask_file)
         lung_mask = nib.load(mask_file).get_fdata()
+        print("Loading the lung mask_file: get_fdata.....")
+
         print("lung_mask",lung_mask.shape)
         print("lung_img",lung_img.shape)
         # Perform vessel segmentation
         output_filename = os.path.join(output_directory, os.path.basename(
             file).replace('.nii.gz', '_vessel_mask.nii.gz'))
         print("output_filename", output_filename)
-
+        print("vesseg lung and  lung mask_file")
         vessel = vesseg(lung_img, lung_mask)
         # vessel = lung_img
 
