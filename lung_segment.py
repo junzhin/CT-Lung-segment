@@ -73,12 +73,15 @@ def lungmask(vol):
 
 
 def process_image(input_image_path, output_directory):
+    print('input_image_path: ', input_image_path)
     start = time.time()
 
     # Extract file name
     file_name = os.path.basename(input_image_path)
     output_path = os.path.join(
         output_directory, file_name.replace(".nii.gz", "_lung_mask.nii.gz"))
+    
+    print('output_path: ', output_path)
 
     # Check if the output file already exists, if so, skip processing
     if os.path.exists(output_path):
@@ -113,7 +116,7 @@ def process_image(input_image_path, output_directory):
 
 if __name__ == "__main__":
     input_directory = '/data2/LSAM/img'
-    output_directory = '/data2/LSAM/lung_mask'
+    output_directory = '/data2/LSAM/lung_mask2'
 
     input_images = [os.path.join(input_directory, f) for f in os.listdir(
         input_directory) if f.endswith('.nii.gz')]

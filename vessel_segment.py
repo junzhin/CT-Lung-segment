@@ -80,8 +80,7 @@ def vesseg(image, label):
     vessel[vessel <= 0] = 0
     return vessel
 
-
-
+# /data2/LSAM/img/OSIC_636.nii.gz
 
 if __name__ == '__main__':
     start_total = time.time()
